@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<h1>Welcome to Time Table</h1>
+<hr />
+
+<div class="row">
+    <div class="col-sm-4">
+        <ul class="list-group">
+            <li class="list-group-item">
+                @Html.ActionLink("Occupation List 1", "List1", "Occupation", new { area = "Occupation" }, new { })
+            </li>
+            <li class="list-group-item">
+                @Html.ActionLink("Occupation List 2", "List2", "Occupation", new { area = "Occupation" }, new { })
+            </li>
+            <li class="list-group-item">
+                @Html.ActionLink("Occupation List 3", "List3", "Occupation", new { area = "Occupation" }, new { })
+            </li>
+        </ul>
+    </div>
+</div>
+

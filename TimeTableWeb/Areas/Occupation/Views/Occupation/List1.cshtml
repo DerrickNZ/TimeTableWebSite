@@ -1,0 +1,113 @@
+﻿@model IDictionary<string, int>
+@{
+    ViewBag.Title = "Occupation List One";
+}
+
+<div class="col-md-2">
+    <table class="table table-striped">
+        <tr>
+            <th>Code</th>
+            <th>Count</th>
+        </tr>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Key</td>
+                <td>@item.Value</td>
+            </tr>
+        }
+    </table>
+</div>
+
+<div class="col-md-10">
+    <style>
+        .chart {
+            padding: 0;
+            margin: 20px;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $("rect").mouseenter(function () {
+                var noc = $(this).attr("class");
+                $("." + noc).filter(".line").fadeIn("fast");
+            })
+
+            $("rect").mouseleave(function () {
+                var noc = $(this).attr("class");
+                $("." + noc).filter(".line").fadeOut("fast");
+            })
+        })
+    </script>
+    @{
+        //Set SVG Height
+        //Min 500 (Pie radious 120 * 2 + Pie Margin 80 * 2)
+        //Max Model.Count * 22 + 10 * 2(Margin)
+        ViewBag.SVGHeight = Math.Max(400, Model.Count * 22 + 20);
+    }
+    <svg class="chart col-md-10" height="@ViewBag.SVGHeight">
+        <g transform="translate(150,@(ViewBag.SVGHeight/2) )">
+            @{
+                double arcBegin = 0;
+                double arcEnd = 0;
+                Random rand = new Random();
+                int i = 0;
+
+                int max = Model.Values.Max();
+
+                foreach (var item in Model)
+                {
+                    //Calculate Arc Angle 
+                    arcEnd = arcBegin + 2 * Math.PI * (double)item.Value / ViewBag.Total;
+
+                    //Calculate BeginPoint(Outer)
+                    double xBegin = -120 * Math.Cos(arcBegin);
+                    double yBegin = -120 * Math.Sin(arcBegin);
+
+                    //Calculate EndPoint(Outer)
+                    double xEnd = -120 * Math.Cos(arcEnd);
+                    double yEnd = -120 * Math.Sin(arcEnd);
+
+                    //Calculate BeginPoint(Inner)
+                    double xBeginHalf = -60* Math.Cos(arcBegin);
+                    double yBeginHalf = -60 * Math.Sin(arcBegin);
+
+                    //Calculate EndPoint(Inner)
+                    double xEndHalf = -60 * Math.Cos(arcEnd);
+                    double yEndHalf = -60 * Math.Sin(arcEnd);
+
+                    //Random Set Color
+                    string color = rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2");
+
+                    //Draw Arc
+                    if (arcEnd - arcBegin >= Math.PI)
+                    {
+                        //Arc longer than 180 degree
+                        <path class="@item.Key" d=@("M" + xBegin + "," + yBegin + "A120,120,0,1,1," + xEnd + "," + yEnd + "L" + xEndHalf+","+yEndHalf+"A60,60,0,1,0,"+xBeginHalf+","+yBeginHalf+"Z") fill="@("#"+color)"></path>
+                    }
+                    else
+                    {
+                        //Arc shorter than 180 degree
+                        <path class="@item.Key" d=@("M" + xBegin + "," + yBegin + "A120,120,0,0,1," + xEnd + "," + yEnd + "L" + xEndHalf+","+yEndHalf+"A60,60,0,0,0,"+xBeginHalf+","+yBeginHalf+"Z") fill="@("#"+color)"></path>
+                    }
+
+                    
+                    //Draw Line Between middle of outer arc and tag
+                    <path class="@item.Key  line" d=@("M" + (xBegin + xEnd) / 2 + "," + (yBegin + yEnd) / 2 + "C" + (xBegin + xEnd) * 1.75 / 2 + "," + (yBegin + yEnd) * 1.75 / 2 + ",100," + ((i + 1) * 22 - ViewBag.SVGHeight / 2 + 10) + ",160," + ((i + 1) * 22 - ViewBag.SVGHeight / 2 + 10)) stroke="@("#"+color)" stroke-width="2" fill="transparent" style="display:none"></path>
+
+                    //Draw Bar
+                    <rect class="@item.Key" x="210" y="@((i + 1) * 22 - ViewBag.SVGHeight / 2)" width="@(item.Value * 250 / max)" height="21" rx="5" ry="5" fill="@("#"+color)"></rect>
+
+                    //Draw Text
+                    <g transform="translate(160,@((i + 1) * 22 - ViewBag.SVGHeight / 2))">
+                        <text class="@item.Key" x="0" y="9" dy=".5em" fill="@("#"+color)">@item.Key</text>
+                        <text class="@item.Key" x="@(item.Value * 250 / max + 51)" y="9" dy=".5em" fill="@("#"+color)">@item.Value</text>
+                    </g>
+
+                    arcBegin = arcEnd;
+                    i++;
+                }
+            }
+        </g>
+    </svg>
+</div>

@@ -1,0 +1,160 @@
+﻿@model IDictionary<string, int>
+@{
+    ViewBag.Title = "Occupation List Two";
+}
+<div class="container">
+    <div class="col-md-2">
+        <table class="table table-striped">
+            <tr>
+                <th>Code</th>
+                <th>Count</th>
+            </tr>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Key</td>
+                    <td>@item.Value</td>
+                </tr>
+            }
+        </table>
+    </div>
+    <div class="col-md-10">
+        <style>
+            .chart {
+                padding: 0;
+                margin: 20px;
+            }
+
+            .forward {
+                text-anchor: start;
+            }
+
+            .backward {
+                text-anchor: end;
+            }
+        </style>
+        <svg class="chart col-md-10" height="500">
+            <g transform="translate(350,250)">
+                @{
+                    int barLength = 120;
+                    double arcBegin = 0;
+                    double arcEnd = 0;
+                    Random rand = new Random();
+
+                    int max = Model.Values.Max();
+
+                    foreach (var item in Model)
+                    {
+                        //Calculate Arc Angle
+                        arcEnd = arcBegin + 2 * Math.PI * (double)item.Value / ViewBag.Total;
+
+                        //Calculate BeginPoint(Outer)
+                        double xBegin = -150 * Math.Cos(arcBegin);
+                        double yBegin = -150 * Math.Sin(arcBegin);
+
+                        //Calculate EndPoint(Outer)
+                        double xEnd = -150 * Math.Cos(arcEnd);
+                        double yEnd = -150 * Math.Sin(arcEnd);
+
+                        //Calculate BeginPoint(Inner)
+                        double xBeginHalf = -75 * Math.Cos(arcBegin);
+                        double yBeginHalf = -75 * Math.Sin(arcBegin);
+
+                        //Calculate EndPoint(Inner)
+                        double xEndHalf = -75 * Math.Cos(arcEnd);
+                        double yEndHalf = -75 * Math.Sin(arcEnd);
+
+                        //Calculate LineBeginPoint
+                        double xLineBegin = -150 * Math.Cos((arcBegin + arcEnd) / 2);
+                        double yLineBegin = -150 * Math.Sin((arcBegin + arcEnd) / 2);
+
+                        //Calculate LineEndPoint
+                        double xLineEnd = -200 * Math.Cos((arcBegin + arcEnd) / 2);
+                        double yLineEnd = -200 * Math.Sin((arcBegin + arcEnd) / 2);
+
+                        //Random Color
+                        string color = rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2");
+
+                        //Check if Arc is > 180 degree
+                        if (arcEnd - arcBegin >= Math.PI)
+                        {
+                            //Arc is greater than 180 degree
+                            <path class="@item.Key" d=@("M" + xBegin + "," + yBegin + "A150,150,0,1,1," + xEnd + "," + yEnd + "L" + xEndHalf+","+yEndHalf+"A75,75,0,1,0,"+xBeginHalf+","+yBeginHalf+"Z") fill="@("#"+color)"></path>
+                        }
+                        else
+                        {
+                            //Arc is shorter than 180 degree
+                            <path class="@item.Key" d=@("M" + xBegin + "," + yBegin + "A150,150,0,0,1," + xEnd + "," + yEnd + "L" + xEndHalf+","+yEndHalf+"A75,75,0,0,0,"+xBeginHalf+","+yBeginHalf+"Z") fill="@("#"+color)"></path>
+                        }
+
+                        //Generate Line
+                        <line class="@item.Key" x1=@xLineBegin y1=@yLineBegin x2=@xLineEnd y2=@yLineEnd stroke="@("#"+color)" stroke-width="2" fill="transparent" style="display:none"></line>
+
+
+                        //Check the block is on the left or right
+                        if (xLineEnd >= 0)
+                        {
+                            //On the Right
+                            <g class="@item.Key" transform=@("translate(" + xLineEnd + "," + yLineEnd + ")") style="display:none">
+                                <text class="forward" x="5" y="5" fill="@("#"+color)">@item.Key</text>
+                                <rect x="54" y="-10" width="@(item.Value * barLength / max)" height="20" rx="5" ry="5" fill="@("#"+color)"></rect>
+                                <text class="forward" x="@(item.Value * barLength / max + 55)" y="5" fill="@("#"+color)">@item.Value</text>
+                            </g>
+                        }
+                        else
+                        {
+                            //On the Left
+                            <g class="@item.Key" transform=@("translate(" + xLineEnd + "," + yLineEnd + ")") style="display:none">
+                                <text class="backward" x="-5" y="5" fill="@("#"+color)">@item.Key</text>
+                                <rect x="@(-54 - item.Value * barLength / max)" y="-10" width="@(item.Value * barLength / max)" height="20" rx="5" ry="5" fill="@("#"+color)"></rect>
+                                <text class="backward" x="@(-1 * item.Value * barLength / max - 55)" y="5" fill="@("#"+color)">@item.Value</text>
+                            </g>
+
+                        }
+                        arcBegin = arcEnd;
+                    }
+                }
+            </g>
+        </svg>
+        <script>
+            var nocCount = $("path").size();
+            var i = 0;
+            var interval = setInterval("display()", 1000);
+
+            function display() {
+                $("path").eq(i).trigger("pathMouseEnter");
+                setTimeout(function () {
+                    $("path").eq(i).trigger("pathMouseLeave");
+                    i++;
+                    if (i >= nocCount) {
+                        i = 0;
+                    }
+                }, 900);
+            }
+
+            $(document).ready(function () {
+                $("path").bind("pathMouseEnter", function () {
+                    var noc = $(this).attr("class");
+                    $("." + noc).filter("line").fadeIn("fast");
+                    $("." + noc).filter("g").fadeIn("fast");
+                })
+
+                $("path").bind("pathMouseLeave", function () {
+                    var noc = $(this).attr("class");
+                    $("." + noc).filter("line").fadeOut();
+                    $("." + noc).filter("g").fadeOut();
+                })
+
+                $("path").mouseenter(function () {
+                    clearInterval(interval);
+                    $(this).trigger("pathMouseEnter");
+                })
+
+                $("path").mouseleave(function () {
+                    $(this).trigger("pathMouseLeave");
+                    interval = setInterval("display()", 1000);
+                })
+            });
+        </script>
+    </div>
+</div>
