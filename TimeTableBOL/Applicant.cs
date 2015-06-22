@@ -29,7 +29,7 @@ namespace TimeTableBOL
         [Required]
         public int Score { get; set; }
 
-        //Applicant Display Name
+        //Applicant Occupation Code
         [StringLength(6)]
         [Required]
         public string OccupationCode { get; set; }
