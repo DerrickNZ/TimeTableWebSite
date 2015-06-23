@@ -110,6 +110,9 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Areas\Occupation\Views\Occupation\List2.cshtml" />
     <Content Include="Areas\Occupation\Views\Occupation\List3.cshtml" />
+    <Content Include="Areas\TimeLine\Views\web.config" />
+    <Content Include="Areas\TimeLine\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\TimeLine\Views\TimeLine\Line1.cshtml" />
     <None Include="Scripts\jquery-2.1.4-vsdoc.js" />
     <Content Include="Icon.png" />
     <Content Include="Scripts\bootstrap.js" />
@@ -124,6 +127,9 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\Occupation\Controllers\OccupationController.cs" />
     <Compile Include="Areas\Occupation\OccupationAreaRegistration.cs" />
+    <Compile Include="Areas\TimeLine\Controllers\TimeLineController.cs" />
+    <Compile Include="Areas\TimeLine\Models\ApplicantTimeLineViewModel.cs" />
+    <Compile Include="Areas\TimeLine\TimeLineAreaRegistration.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -149,12 +155,17 @@
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Occupation\Models\" />
     <Folder Include="Areas\Occupation\Views\Shared\" />
+    <Folder Include="Areas\TimeLine\Views\Shared\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TimeTableBLL\TimeTableBLL.csproj">
       <Project>{0ee52f16-9087-4986-8f49-4fd0407a8838}</Project>
       <Name>TimeTableBLL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TimeTableBOL\TimeTableBOL.csproj">
+      <Project>{4a93e398-fd06-470d-8516-aa5928089ca5}</Project>
+      <Name>TimeTableBOL</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
