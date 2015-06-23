@@ -1,0 +1,56 @@
+﻿@model IEnumerable<TimeTableWeb.Areas.TimeLine.Models.ApplicantTimeLineViewModel>
+@{
+    ViewBag.Title = "TimeLine of Application";
+    ViewBag.Days = Model.Min(e => e.StepOne).HasValue ? (DateTime.Now - Model.Min(e => e.StepOne).Value).Days : 1;
+}
+<h1>TimeLine of Application</h1>
+<hr />
+<div class="container-fluid">
+    <div class="col-md-12">
+        <style>
+            .chart rect.StepOne {
+                fill: #5E4FA2;
+            }
+
+            .chart rect.StepTwo {
+                fill: #3288BD;
+            }
+
+            .chart rect.StepThree {
+                fill: #66C2A5;
+            }
+
+            .chart rect.StepFour {
+                fill: #ABDDA4;
+            }
+
+            .chart text {
+                fill: black;
+                text-anchor: start;
+            }
+        </style>
+        <svg class="chart" height="@(Model.Count()*35)" width="600">
+            @for (int i = 0; i < Model.Count(); i++)
+            {
+                var item = Model.ToList()[i];
+                var type = item.GetType();
+                <g transform="translate(0,@(i*35))">
+                    <text x="0" y="14">@item.ApplicantName</text>
+                    @foreach (var member in type.GetProperties())
+                    {
+                        if (member.PropertyType == typeof(Nullable<DateTime>))
+                        {
+                            var m = member.GetValue(item) as Nullable<DateTime>;
+                            if (m.HasValue)
+                            {
+                                int width = (DateTime.Now - m.Value).Days * 600 / ViewBag.Days;
+                                <rect class="@member.Name" x="@(600 - width)" y="16" width="@width" height="16"></rect>
+                            }
+                        }
+                    }
+                </g>
+            }
+        </svg>
+    </div>
+</div>
+
