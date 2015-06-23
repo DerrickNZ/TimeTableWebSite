@@ -13,9 +13,20 @@ namespace TimeTableBLL
         ApplicantDAL dal = new ApplicantDAL();
 
         //Get All Applicants
-        public IEnumerable<Applicant> GetAllApplicants()
+        public ApplicantsResult GetAllApplicants()
         {
-            return dal.GetApplicants();
+            try
+            {
+                //Get All Applicants
+                var applicantsList = dal.GetApplicants();
+
+                //Return the result
+                return new ApplicantsResult() { Success = true, Applicants = applicantsList };
+            }
+            catch (Exception ee)
+            {
+                return new ApplicantsResult() { Success = false, ErrorMessage = Utility.GetErrorMessage(ee) };
+            }
         }
 
         //Get Occupation Code Statistics

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TimeTableBOL;
 
 namespace TimeTableBLL
 {
@@ -24,5 +25,12 @@ namespace TimeTableBLL
 
         //Total Items in the list
         public int Total { get; set; }
+    }
+
+    //Applicants List Result
+    public class ApplicantsResult : CommonResult
+    {
+        //Applicants List
+        public IEnumerable<Applicant> Applicants { get; set; }
     }
 }
