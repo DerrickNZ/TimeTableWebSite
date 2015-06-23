@@ -29,6 +29,24 @@ namespace TimeTableBLL
             }
         }
 
+        //Get Applicants by occupation
+        public ApplicantsResult GetApplicantByOccupation(string code)
+        {
+            try
+            {
+                //Get applicants by the occupation code
+                var list = dal.GetApplicants(e => e.OccupationCode == code);
+
+                //Return the result
+                return new ApplicantsResult() { Success = true, Applicants = list };
+            }
+            catch (Exception ee)
+            {
+                return new ApplicantsResult() { Success = false, ErrorMessage = Utility.GetErrorMessage(ee) };
+            }
+
+        }
+
         //Get Occupation Code Statistics
         public OccupationResult GetOccupationCode()
         {
@@ -65,5 +83,7 @@ namespace TimeTableBLL
         {
             dal.AddRange(list);
         }
+
+
     }
 }

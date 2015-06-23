@@ -1,0 +1,88 @@
+﻿@model IDictionary<string, int>
+
+@{
+    ViewBag.Title = "Occupation List One";
+}
+
+<div class="row">
+    <style>
+        .chart {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+    <script src="~/Scripts/jquery-2.1.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".g-bar-text").mouseenter(function () {
+                $(this).children().first().fadeIn("fast");
+            })
+
+            $(".g-bar-text").mouseleave(function () {
+                $(this).children().first().fadeOut("fast");
+            })
+
+            $(".g-bar-text").click(function () {
+                var code = $(this).attr("class").split(" ")[1];
+                var textColor = $(this).children().attr("stroke");
+                $.ajax({
+                    type: "POST",
+                    data: "code=" + code,
+                    success: function (data) {
+                        var resultDiv = $("#result");
+                        resultDiv.css("color", textColor);
+                        resultDiv.children("p").text("Occupation Code: " + code).show();
+
+                        resultDiv.children("table").addClass("table table-striped");
+                        resultDiv.children("table").children().remove();
+                        resultDiv.children("table").append("<tr><th>Name</th><th>Date of Birth</th><th>Score</th></tr>").slideDown();
+
+                        for (i = 0; i < data.length; i++) {
+                            var value = new Date(parseInt(data[i].DateOfBirth.substr(6)));
+                            var ret = value.getDate() + "/" + (value.getMonth() + 1) + "/" + value.getFullYear();
+                            resultDiv.children("table").append("<tr><td>" + data[i].ApplicantName + "</td><td>" + ret + "</td><td>" + data[i].Score + "</td></tr>").slideDown();
+                        }
+                    }
+                });
+            })
+        })
+    </script>
+    @{
+        //Set SVG Height
+        ViewBag.SVGHeight = Model.Count * 26 + 10;
+    }
+    <svg class="chart col-md-6" height="@ViewBag.SVGHeight">
+        <g>
+            @{
+                //Set Random For Color
+                Random rand = new Random();
+
+                //Item Count
+                int i = 0;
+
+                //Get Max Value
+                int max = Model.Values.Max();
+
+                //Draw each Bar and Text
+                foreach (var item in Model)
+                {
+                    //Random Set Color
+                    string color = rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2");
+
+                    //Draw Text
+                    <g class="g-bar-text @item.Key" transform="translate(5,@(i * 26 + 5))">
+                        <rect x="-2" y="1" height="24" width="@(item.Value * 250 / max + 73)" fill="transparent" stroke="@("#"+color)" stroke-width="2px" rx="3" ry="3" style="display:none"></rect>
+                        <text x="0" y="11" dy=".5em" fill="@("#"+color)">@item.Key</text>
+                        <rect x="50" y="3" width="@(item.Value * 250 / max)" height="20" rx="5" ry="5" fill="@("#"+color)"></rect>
+                        <text x="@(item.Value * 250 / max + 51)" y="11" dy=".5em" fill="@("#"+color)">@item.Value</text>
+                    </g>
+                    i++;
+                }
+            }
+        </g>
+    </svg>
+    <div id="result" class="col-md-6">
+        <p></p>
+        <table></table>
+    </div>
+</div>

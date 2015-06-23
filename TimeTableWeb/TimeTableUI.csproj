@@ -113,6 +113,7 @@
     <Content Include="Areas\TimeLine\Views\web.config" />
     <Content Include="Areas\TimeLine\Views\_ViewStart.cshtml" />
     <Content Include="Areas\TimeLine\Views\TimeLine\Line1.cshtml" />
+    <Content Include="Areas\Occupation\Views\Occupation\List4.cshtml" />
     <None Include="Scripts\jquery-2.1.4-vsdoc.js" />
     <Content Include="Icon.png" />
     <Content Include="Scripts\bootstrap.js" />
@@ -126,6 +127,7 @@
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\Occupation\Controllers\OccupationController.cs" />
+    <Compile Include="Areas\Occupation\Models\ApplicantDetailInOccupationViewModel.cs" />
     <Compile Include="Areas\Occupation\OccupationAreaRegistration.cs" />
     <Compile Include="Areas\TimeLine\Controllers\TimeLineController.cs" />
     <Compile Include="Areas\TimeLine\Models\ApplicantTimeLineViewModel.cs" />
@@ -153,7 +155,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Areas\Occupation\Models\" />
     <Folder Include="Areas\Occupation\Views\Shared\" />
     <Folder Include="Areas\TimeLine\Views\Shared\" />
     <Folder Include="Models\" />
