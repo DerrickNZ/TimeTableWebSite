@@ -4,26 +4,30 @@
 
 <h1>Welcome to Time Table</h1>
 <hr />
+<script src="~/Scripts/jquery-2.1.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".list-group-item").mouseenter(function () {
+            $(this).addClass("active").animate({
+                paddingLeft: "30px"
+            }, "ease");
+        })
 
+        $(".list-group-item").mouseleave(function () {
+            $(this).removeClass("active").animate({
+                paddingLeft: "15px"
+            },"ease");
+        })
+    })
+</script>
 <div class="row">
     <div class="col-sm-4">
-        <ul class="list-group">
-            <li class="list-group-item">
-                @Html.ActionLink("Occupation List 1", "List1", "Occupation", new { area = "Occupation" }, new { })
-            </li>
-            <li class="list-group-item">
-                @Html.ActionLink("Occupation List 2", "List2", "Occupation", new { area = "Occupation" }, new { })
-            </li>
-            <li class="list-group-item">
-                @Html.ActionLink("Occupation List 3", "List3", "Occupation", new { area = "Occupation" }, new { })
-            </li>
-            <li class="list-group-item">
-                @Html.ActionLink("Occupation List 4", "List4", "Occupation", new { area = "Occupation" }, new { })
-            </li>
-            <li class="list-group-item">
-                @Html.ActionLink("Time Line 1", "Line1", "TimeLine", new { area = "TimeLine" }, new { })
-            </li>
-        </ul>
+        <div class="list-group">
+            @Html.ActionLink("Occupation List 1", "List1", "Occupation", new { area = "Occupation" }, new { @class = "list-group-item" })
+            @Html.ActionLink("Occupation List 2", "List2", "Occupation", new { area = "Occupation" }, new { @class = "list-group-item" })
+            @Html.ActionLink("Occupation List 3", "List3", "Occupation", new { area = "Occupation" }, new { @class = "list-group-item" })
+            @Html.ActionLink("Occupation List 4", "List4", "Occupation", new { area = "Occupation" }, new { @class = "list-group-item" })
+            @Html.ActionLink("Time Line 1", "Line1", "TimeLine", new { area = "TimeLine" }, new { @class = "list-group-item" })
+        </div>
     </div>
 </div>
-
