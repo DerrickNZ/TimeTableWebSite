@@ -19,14 +19,38 @@ namespace TimeTableWeb.Areas.Occupation.Controllers
             var result = service.GetOccupationCode();
 
             //Check result 
-            if(result.Success)
+            if (result.Success)
             {
                 //Success
                 //Pass Result.Total tp ViewBag
                 ViewBag.Total = result.Total;
 
+                //Creat ViewModel
+                List<OccupationList1ViewModel> list = new List<OccupationList1ViewModel>();
+
+                //Record Last Radian
+                double last = 0;
+
+                //Color Random
+                Random rand = new Random();
+
+                foreach (var item in result.OccupationList)
+                {
+                    //Calculate the of Each Arc 
+                    list.Add(new OccupationList1ViewModel()
+                    {
+                        Code = item.Key,
+                        Count = item.Value,
+                        ArcBegin = last,
+                        ArcEnd = last + 2 * Math.PI * (double)item.Value / result.Total,
+                        Color = rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2")
+                    });
+                    //Set last equals to Arc End
+                    last = last + 2 * Math.PI * (double)item.Value / result.Total;
+                }
+
                 //Pass List to View
-                return View(result.OccupationList);
+                return View(list);
             }
             else
             {
@@ -115,7 +139,7 @@ namespace TimeTableWeb.Areas.Occupation.Controllers
         public ActionResult List4(string code)
         {
             //if the param is null or empty
-            if(string.IsNullOrEmpty(code))
+            if (string.IsNullOrEmpty(code))
             {
                 return new EmptyResult();
             }
@@ -124,11 +148,11 @@ namespace TimeTableWeb.Areas.Occupation.Controllers
             var result = service.GetApplicantByOccupation(code);
 
             //Check if the result is successful
-            if(result.Success)
+            if (result.Success)
             {
                 //Success
                 //Check if the result is empty
-                if(result.Applicants.Count() == 0)
+                if (result.Applicants.Count() == 0)
                 {
                     //The list is empty
                     return new EmptyResult();
@@ -138,7 +162,7 @@ namespace TimeTableWeb.Areas.Occupation.Controllers
                 List<ApplicantDetailInOccupationViewModel> list = new List<ApplicantDetailInOccupationViewModel>();
 
                 //Convert Applicant to ViewModel
-                foreach(var applicant in result.Applicants)
+                foreach (var applicant in result.Applicants)
                 {
                     list.Add(new ApplicantDetailInOccupationViewModel(applicant));
                 }

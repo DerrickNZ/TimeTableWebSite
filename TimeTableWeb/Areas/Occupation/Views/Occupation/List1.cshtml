@@ -1,25 +1,9 @@
-﻿@model IDictionary<string, int>
+﻿@model IList<TimeTableWeb.Areas.Occupation.Models.OccupationList1ViewModel>
 @{
     ViewBag.Title = "Occupation List One";
 }
 
-<div class="col-md-2">
-    <table class="table table-striped">
-        <tr>
-            <th>Code</th>
-            <th>Count</th>
-        </tr>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Key</td>
-                <td>@item.Value</td>
-            </tr>
-        }
-    </table>
-</div>
-
-<div class="col-md-10">
+<div class="col-md-12">
     <p>Move mouse over the bar.</p>
     <style>
         .chart {
@@ -27,86 +11,105 @@
             margin: 20px;
         }
     </style>
+    <script src="~/Scripts/jquery-2.1.4.min.js"></script>
     <script>
         $(document).ready(function () {
-            $("rect").mouseenter(function () {
-                var noc = $(this).attr("class");
-                $("." + noc).filter(".line").fadeIn("fast");
+            $(".pie").mouseenter(function () {
+                var code = $(this).attr("class").split(" ")[0];
+                $("." + code).filter(".line").stop().fadeIn("fast");
+                $(".pie").not("." + code).stop().animate({
+                    opacity: 0.3
+                }, "fast");
             })
 
-            $("rect").mouseleave(function () {
+            $(".pie").mouseleave(function () {
                 var noc = $(this).attr("class");
-                $("." + noc).filter(".line").fadeOut("fast");
+                var code = $(this).attr("class").split(" ")[0];
+                $("." + code).filter(".line").stop().fadeOut("fast");
+                $(".pie").not("." + code).stop().animate({
+                    opacity: 1
+                }, "fast");
             })
         })
     </script>
     @{
         //Set SVG Height
-        //Min 500 (Pie radious 120 * 2 + Pie Margin 80 * 2)
-        //Max Model.Count * 22 + 10 * 2(Margin)
-        ViewBag.SVGHeight = Math.Max(400, Model.Count * 22 + 20);
+        //Min 400 (Pie radious 120 * 2 + Pie Margin 80 * 2)
+        //Max Model.Count * 30 + 10 * 2(Margin)
+        ViewBag.SVGHeight = Math.Max(400, Model.Count() * 30 + 20);
     }
-    <svg class="chart col-md-10" height="@ViewBag.SVGHeight">
-        <g transform="translate(150,@(ViewBag.SVGHeight/2) )">
+    <svg class="chart col-md-12" height="@ViewBag.SVGHeight">
+        <g transform="translate(150,@(ViewBag.SVGHeight/2))">
             @{
-                double arcBegin = 0;
-                double arcEnd = 0;
-                Random rand = new Random();
-                int i = 0;
-
-                int max = Model.Values.Max();
-
+                //Draw Arc
                 foreach (var item in Model)
                 {
-                    //Calculate Arc Angle 
-                    arcEnd = arcBegin + 2 * Math.PI * (double)item.Value / ViewBag.Total;
-
                     //Calculate BeginPoint(Outer)
-                    double xBegin = -120 * Math.Cos(arcBegin);
-                    double yBegin = -120 * Math.Sin(arcBegin);
+                    double xOuterBegin = -120 * Math.Cos(item.ArcBegin);
+                    double yOuterBegin = -120 * Math.Sin(item.ArcBegin);
 
                     //Calculate EndPoint(Outer)
-                    double xEnd = -120 * Math.Cos(arcEnd);
-                    double yEnd = -120 * Math.Sin(arcEnd);
+                    double xOuterEnd = -120 * Math.Cos(item.ArcEnd);
+                    double yOuterEnd = -120 * Math.Sin(item.ArcEnd);
 
                     //Calculate BeginPoint(Inner)
-                    double xBeginHalf = -60* Math.Cos(arcBegin);
-                    double yBeginHalf = -60 * Math.Sin(arcBegin);
+                    double xInnerBegin = -60 * Math.Cos(item.ArcBegin);
+                    double yInnerBegin = -60 * Math.Sin(item.ArcBegin);
 
                     //Calculate EndPoint(Inner)
-                    double xEndHalf = -60 * Math.Cos(arcEnd);
-                    double yEndHalf = -60 * Math.Sin(arcEnd);
-
-                    //Random Set Color
-                    string color = rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2") + rand.Next(256).ToString("X2");
+                    double xInnerEnd = -60 * Math.Cos(item.ArcEnd);
+                    double yInnerEnd = -60 * Math.Sin(item.ArcEnd);
 
                     //Draw Arc
-                    if (arcEnd - arcBegin >= Math.PI)
+                    if (item.ArcEnd - item.ArcBegin >= Math.PI)
                     {
                         //Arc longer than 180 degree
-                        <path class="@item.Key" d=@("M" + xBegin + "," + yBegin + "A120,120,0,1,1," + xEnd + "," + yEnd + "L" + xEndHalf+","+yEndHalf+"A60,60,0,1,0,"+xBeginHalf+","+yBeginHalf+"Z") fill="@("#"+color)"></path>
+                        <path class="@item.Code pie" d=@("M" + xOuterBegin + "," + yOuterBegin + "A120,120,0,1,1," + xOuterEnd + "," + yOuterEnd + "L" + xInnerEnd + "," + yInnerEnd + "A60,60,0,1,0," + xInnerBegin + "," + yInnerBegin + "Z") fill="@("#" + item.Color)"></path>
                     }
                     else
                     {
                         //Arc shorter than 180 degree
-                        <path class="@item.Key" d=@("M" + xBegin + "," + yBegin + "A120,120,0,0,1," + xEnd + "," + yEnd + "L" + xEndHalf+","+yEndHalf+"A60,60,0,0,0,"+xBeginHalf+","+yBeginHalf+"Z") fill="@("#"+color)"></path>
+                        <path class="@item.Code pie" d=@("M" + xOuterBegin + "," + yOuterBegin + "A120,120,0,0,1," + xOuterEnd + "," + yOuterEnd + "L" + xInnerEnd + "," + yInnerEnd + "A60,60,0,0,0," + xInnerBegin + "," + yInnerBegin + "Z") fill="@("#" + item.Color)"></path>
                     }
+                }
+            }
+        </g>
+        <g transform="translate(350, @(Math.Max(0,(400 - (Model.Count() * 30 + 20)) / 2)))">
+            @{
+                //Get Largest Count
+                int max = Model.Max(e => e.Count);
 
-                    
-                    //Draw Line Between middle of outer arc and tag
-                    <path class="@item.Key  line" d=@("M" + (xBegin + xEnd) / 2 + "," + (yBegin + yEnd) / 2 + "C" + (xBegin + xEnd) * 1.75 / 2 + "," + (yBegin + yEnd) * 1.75 / 2 + ",100," + ((i + 1) * 22 - ViewBag.SVGHeight / 2 + 10) + ",160," + ((i + 1) * 22 - ViewBag.SVGHeight / 2 + 10)) stroke="@("#"+color)" stroke-width="2" fill="transparent" style="display:none"></path>
-
-                    //Draw Bar
-                    <rect class="@item.Key" x="210" y="@((i + 1) * 22 - ViewBag.SVGHeight / 2)" width="@(item.Value * 250 / max)" height="21" rx="5" ry="5" fill="@("#"+color)"></rect>
-
-                    //Draw Text
-                    <g transform="translate(160,@((i + 1) * 22 - ViewBag.SVGHeight / 2))">
-                        <text class="@item.Key" x="0" y="9" dy=".5em" fill="@("#"+color)">@item.Key</text>
-                        <text class="@item.Key" x="@(item.Value * 250 / max + 51)" y="9" dy=".5em" fill="@("#"+color)">@item.Value</text>
+                //Draw Text and Bar
+                for (int i = 0; i < Model.Count(); i++)
+                {
+                    <g class="@Model[i].Code pie" transform="translate(0 , @(i * 30 + 10))" fill="@("#" + Model[i].Color)">
+                        <text x="0" y="20" font-size="16px" font-weight="bold">@Model[i].Code</text>
+                        <rect x="56" y="3" width="@(Model[i].Count * 250 / max)" height="24" rx="5" ry="5"></rect>
+                        <text x="@(Model[i].Count * 250 / max + 60)" y="20" font-size="16px" font-weight="bold">@Model[i].Count</text>
                     </g>
+                }
+            }
+        </g>
+        <g>
+            @{
+                //Draw Line Between middle of outer arc and tag
+                for (int i = 0; i < Model.Count(); i++)
+                {
+                    var item = Model[i];
 
-                    arcBegin = arcEnd;
-                    i++;
+                    double xLineBegin1 = -120 * Math.Cos((item.ArcBegin + item.ArcEnd) / 2) + 150;
+                    double yLineBegin1 = -120 * Math.Sin((item.ArcBegin + item.ArcEnd) / 2) + ViewBag.SVGHeight / 2;
+
+                    double xLineBegin2 = -240 * Math.Cos((item.ArcBegin + item.ArcEnd) / 2) + 150;
+                    double yLineBegin2 = -240 * Math.Sin((item.ArcBegin + item.ArcEnd) / 2) + ViewBag.SVGHeight / 2;
+
+                    double xLineEnd1 = 250;
+                    double yLineEnd1 = i * 30 + 25 + Math.Max(0, (400 - (Model.Count() * 30 + 20)) / 2);
+
+                    double xLineEnd2 = 350;
+                    double yLineEnd2 = i * 30 + 25 + Math.Max(0, (400 - (Model.Count() * 30 + 20)) / 2);
+
+                    <path class="@item.Code line" d="@("M" + xLineBegin1 + "," + yLineBegin1 + "C" + xLineBegin2 + " " + yLineBegin2 + "," + xLineEnd1 + " " + yLineEnd1 + "," + xLineEnd2 + " " + yLineEnd2)" stroke="@("#"+ item.Color)" stroke-width="2" fill="transparent" style="display:none"></path>
                 }
             }
         </g>
